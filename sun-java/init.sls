@@ -14,17 +14,10 @@ java-install-dir:
     - mode: 755
     - makedirs: True
 
-download-jdk-tarball:
-  cmd.run:
-    - name: curl {{ java.dl_opts }} -o '{{ tarball_file }}' '{{ java.source_url }}'
-    - unless: test -d {{ java.java_real_home }} || test -f {{ tarball_file }}
-    - require:
-      - file: java-install-dir
-
 unpack-jdk-tarball:
   archive.extracted:
     - name: {{ java.prefix }}
-    - source: file://{{ tarball_file }}
+    - source: {{ java.source_url }}
     {%- if java.source_hash %}
     - source_hash: sha256={{ java.source_hash }}
     {%- endif %}
@@ -33,8 +26,6 @@ unpack-jdk-tarball:
     - user: root
     - group: root
     - if_missing: {{ java.java_real_home }}
-    - onchanges:
-      - cmd: download-jdk-tarball
 
 create-java-home:
   alternatives.install:
